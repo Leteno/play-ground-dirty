@@ -8,18 +8,18 @@ class StrBlobPtr;
 class StrBlob {
 friend StrBlobPtr;
 public:
-    StrBlob(std::vector<int>& d) : data (std::move(d)) {}
+    StrBlob(std::vector<int>& d) : data (std::make_shared<std::vector<int>>(std::move(d))) {}
 
     StrBlobPtr begin();
     StrBlobPtr end();
 private:
-    std::vector<int> data;
+    std::shared_ptr<std::vector<int>> data;
 };
 
 class StrBlobPtr {
 public:
     StrBlobPtr(StrBlob& blob, int curr) :
-        curr (curr), data {std::make_shared<std::vector<int>>(blob.data)} {}
+        curr (curr), data (blob.data) {}
 
     int deref() const;
     StrBlobPtr& incr();
@@ -37,7 +37,7 @@ StrBlobPtr StrBlob::begin()
 
 StrBlobPtr StrBlob::end()
 {
-    return StrBlobPtr(*this, data.size());
+    return StrBlobPtr(*this, data->size());
 }
 
 int StrBlobPtr::deref() const
@@ -79,5 +79,22 @@ int main()
         std::cout << p.deref() << std::endl;
     }
 
+    std::cout << "print data: " << std::endl;
+    for (auto it = data.begin(); it != data.end(); it++) {
+        std::cout << *it << std::endl;
+    }
+
     return 0;
 }
+
+/**
+
+1
+2
+3
+4
+5
+6
+print data:
+
+ */
