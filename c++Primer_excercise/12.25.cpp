@@ -42,20 +42,24 @@ int main()
 {
     CharArray a;
 
-    std::vector<std::string> tests;
-    tests.push_back("Hello");
-    tests.push_back("World ");
-    tests.push_back("Mr.Zheng");
-    tests.push_back(" Love");
-    tests.push_back(" You");
-    tests.push_back(" Miss.");
-    tests.push_back("Jiang");
+    for (int i = 0; i < 10000; i++) {
+        std::vector<std::string> tests;
+        tests.push_back("Hello");
+        tests.push_back("World ");
+        tests.push_back("Mr.Zheng");
+        tests.push_back(" Love");
+        tests.push_back(" You");
+        tests.push_back(" Miss.");
+        tests.push_back("Jiang");
 
-    for (auto it = tests.begin(); it != tests.end(); it++) {
-        std::cout << "adding " << *it << std::endl;
-        a.append(*it);
-        std::cout << "current: " << a.currentVal() << std::endl;
+        for (auto it = tests.begin(); it != tests.end(); it++) {
+            std::cout << "adding " << *it << std::endl;
+            a.append(*it);
+            std::cout << "current: " << a.currentVal() << std::endl;
+        }
+        if (i == 5000 || i == 7500 || i == 9999) {
+            continue;
+        }
     }
-
     return 0;
 }
