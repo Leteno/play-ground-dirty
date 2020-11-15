@@ -14,10 +14,10 @@ class QueryResult {
 public:
     struct Pair {
         int count;
-        string line;
+        shared_ptr<string> line;
     };
-    QueryResult(string query, int occurTime) : occurTime(occurTime), query(query) {}
-    void append(int count, string line) {
+    QueryResult(const string query, int occurTime) : occurTime(occurTime), query(query) {}
+    void append(int count, shared_ptr<string> line) {
         Pair p;
         p.count = count;
         p.line = line;
@@ -27,7 +27,7 @@ public:
         stringstream ss;
         ss << "element \"" << query << "\" occurs " << occurTime << " times" << endl;
         for (auto it = data.begin(); it != data.end(); it++) {
-            ss << "Line " << it->count << ": " << "\"" << it->line << "\"" << endl;
+            ss << "Line " << it->count << ": " << "\"" << *(it->line) << "\"" << endl;
         }
         return ss.str();
     }
@@ -44,7 +44,7 @@ public:
 
         string text, word;
         while (getline(infile, text)) {
-            lines.push_back(text);
+            lines.push_back(make_shared<string>(text));
             istringstream is(text);
             int lineNumber = lines.size() - 1;
             while (is >> word) {
@@ -61,7 +61,7 @@ public:
             cout << "Line " << i << ": " << lines[i] << endl;
         }
     }
-    QueryResult query(string q) {
+    QueryResult query(const string& q) {
         int occurTime = getOccurTime(q);
         QueryResult result(q, occurTime);
         if (occurTime > 0) {
@@ -72,7 +72,7 @@ public:
     }
 
 private:
-    void markOccurTime(string word) {
+    void markOccurTime(const string& word) {
         if (wordOccurTimes.find(word) == wordOccurTimes.end()) {
             wordOccurTimes[word] = 1;
         } else {
@@ -80,32 +80,31 @@ private:
         }
     }
 
-    void markLine(string word, int lineNumber) {
+    void markLine(const string& word, int lineNumber) {
         if (wordLinesMap.find(word) == wordLinesMap.end()) {
             wordLinesMap[word] = set<int>();
         }
         wordLinesMap[word].insert(lineNumber);
     }
 
-    int getOccurTime(string word) {
+    int getOccurTime(const string& word) {
         if (wordOccurTimes.find(word) == wordOccurTimes.end()) {
             return 0;
         }
         return wordOccurTimes.find(word)->second;
     }
 
-    void getLineDetails(QueryResult& qr, string word) {
+    void getLineDetails(QueryResult& qr, const string& word) {
         if (wordLinesMap.find(word) == wordLinesMap.end()) {
             return;
         }
         auto s = wordLinesMap.find(word)->second;
         for (auto it = s.begin(); it != s.end(); it++) {
-            cout << "line " << *it << ": " << lines[*it] << endl;
             qr.append(*it, lines[*it]);
         }
     }
 
-    vector<string> lines;
+    vector<shared_ptr<string>> lines;
     map<string, int> wordOccurTimes;
     map<string, set<int>> wordLinesMap;
 };
@@ -125,7 +124,7 @@ void runQueries(ifstream &infile) {
     instruction << "I" << endl;
     instruction << "q" << endl;
     while (true) {
-        cout << "enter word to look for, or q to quit: ";
+        cout << "enter word to look for, or q to quit: " << endl;
         string s;
         if (!(instruction >> s) || s == "q") break;
         print(cout, tq.query(s)) << endl;
