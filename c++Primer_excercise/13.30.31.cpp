@@ -1,15 +1,16 @@
 
-
+#include <algorithm>
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
 class HasPtr {
 public:
-    HasPtr(const string& s = string()) :
-        ps(new string(s)), prio(0), num(new size_t(1)) {}
-    HasPtr(HasPtr& ptr) {
+    HasPtr(const string& s = string(), int prio = 0) :
+        ps(new string(s)), prio(prio), num(new size_t(1)) {}
+    HasPtr(const HasPtr& ptr) {
         ++*ptr.num;
         ps = ptr.ps;
         num = ptr.num;
@@ -18,6 +19,10 @@ public:
     HasPtr& operator=(HasPtr ptr) {
         swap(*this, ptr);
         return *this;
+    }
+    bool operator<(HasPtr& ptr) {
+        cout << "compare " << *ps << " with " << *ptr.ps << endl;
+        return prio < ptr.prio;
     }
     ~HasPtr() {
         cout << "destruct " << *ps << endl;
@@ -40,6 +45,9 @@ public:
         swap(lhs.num, rhs.num);
         swap(lhs.prio, rhs.prio);
     }
+    void setPrio(int prio) {
+        this->prio = prio;
+    }
 
 private:
     string *ps;
@@ -54,5 +62,19 @@ int main() {
     ptr.get().append(" world");
     cout << "ptr1 " << ptr1.get() << endl;
     cout << "ptr2 " << ptr2.get() << endl;
+
+    vector<HasPtr> list;
+    HasPtr item1("Hello", 1);
+    HasPtr item2(" Mr.Zheng", 3);
+    HasPtr item3(" World,", 2);
+    list.push_back(item1);
+    list.push_back(item2);
+    list.push_back(item3);
+    sort(list.begin(), list.end());
+
+    for (auto it = list.begin(); it != list.end(); it++) {
+        cout << it->get();
+    }
+    cout << endl;
     return 0;
 }
